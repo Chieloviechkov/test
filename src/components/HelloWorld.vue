@@ -1,9 +1,19 @@
 <template>
   <v-app>
     <v-container>
+      <v-text-field 
+        v-model="filterTxt" 
+        label="Filter by Text" 
+        @input="setFilterTxt"
+      ></v-text-field>
+      <v-text-field 
+        v-model="filterCC" 
+        label="Filter by Currency Code" 
+        @input="setFilterCC"
+      ></v-text-field>
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="filteredItems"
         :items-per-page="itemsPerPage"
         :sort-by.sync="sortField"
         :sort-desc.sync="sortDesc"
@@ -47,9 +57,18 @@ export default {
       'itemsPerPage',
       'sortField',
       'sortDesc',
+      'filterTxt',
+      'filterCC',
     ]),
+    filteredItems() {
+      return this.items.filter(item => {
+        return item.txt.toLowerCase().includes(this.filterTxt.toLowerCase()) &&
+               item.cc.toLowerCase().includes(this.filterCC.toLowerCase());
+      });
+    },
   },
   created() {
+    this.$store.dispatch('initializeStore');
     this.fetchData();
   },
   methods: {
@@ -57,6 +76,8 @@ export default {
       'setItemsPerPage',
       'setSortField',
       'setSortOrder',
+      'setFilterTxt',
+      'setFilterCC',
     ]),
     fetchData() {
       fetch(apiUrl)
@@ -72,16 +93,15 @@ export default {
     },
     updateItemsPerPage(value) {
       this.setItemsPerPage(value);
-      localStorage.setItem('itemsPerPage', value);
     },
     updateSortField(value) {
       this.setSortField(value);
-      localStorage.setItem('sortField', value);
     },
     updateSortOrder(value) {
       this.setSortOrder(value ? 'desc' : 'asc');
-      localStorage.setItem('sortOrder', value ? 'desc' : 'asc');
     },
+   
   },
 };
 </script>
+
